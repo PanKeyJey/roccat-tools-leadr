@@ -15,7 +15,6 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_SOURCE_DIR}/nyth/libroccatnyth
   ${CMAKE_SOURCE_DIR}/skeltr/libroccatskeltr
   ${CMAKE_SOURCE_DIR}/sova/libroccatsova
-  ${CMAKE_SOURCE_DIR}/tyon/libroccattyon
 )
 
 ADD_LIBRARY(libroccatwidget SHARED

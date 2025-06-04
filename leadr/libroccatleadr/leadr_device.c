@@ -36,7 +36,12 @@ gchar *leadr_device_read(RoccatDevice *device, guint report_id, gssize length, G
 }
 
 static gboolean leadr_check_write(RoccatDevice *device, GError **error) {
-	return roccat_check_write(device, leadr_INTERFACE_MOUSE, leadr_REPORT_ID_CONTROL, 200, 500, error);
+        /*
+         * The Leadr behaves similar to older wireless mice like the Pyra.
+         * Using shorter wait times avoids "invalid status" errors when
+         * communicating via the wireless dongle.
+         */
+        return roccat_check_write(device, leadr_INTERFACE_MOUSE, leadr_REPORT_ID_CONTROL, 110, 110, error);
 }
 
 gboolean leadr_device_write(RoccatDevice *device, gchar const *buffer, gssize length, GError **error) {
