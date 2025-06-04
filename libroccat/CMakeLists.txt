@@ -1,27 +1,27 @@
 INCLUDE_DIRECTORIES(
-  ${CMAKE_SOURCE_DIR}/arvo/libroccatarvo
-  ${CMAKE_SOURCE_DIR}/isku/libroccatisku
-  ${CMAKE_SOURCE_DIR}/iskufx/libroccatiskufx
-  ${CMAKE_SOURCE_DIR}/kiro/libroccatkiro
-  ${CMAKE_SOURCE_DIR}/kone/libroccatkone
-  ${CMAKE_SOURCE_DIR}/koneplus/libroccatkoneplus
-  ${CMAKE_SOURCE_DIR}/konepure/libroccatkonepure
-  ${CMAKE_SOURCE_DIR}/konepuremilitary/libroccatkonepuremilitary
-  ${CMAKE_SOURCE_DIR}/konepureoptical/libroccatkonepureoptical
-  ${CMAKE_SOURCE_DIR}/konextd/libroccatkonextd
-  ${CMAKE_SOURCE_DIR}/konextdoptical/libroccatkonextdoptical
-  ${CMAKE_SOURCE_DIR}/kova2016/libroccatkova2016
-  ${CMAKE_SOURCE_DIR}/kovaplus/libroccatkovaplus
-  ${CMAKE_SOURCE_DIR}/lua/libroccatlua
-  ${CMAKE_SOURCE_DIR}/nyth/libroccatnyth
-  ${CMAKE_SOURCE_DIR}/pyra/libroccatpyra
-  ${CMAKE_SOURCE_DIR}/ryosmk/libroccatryosmk
-  ${CMAKE_SOURCE_DIR}/ryosmkfx/libroccatryosmkfx
-  ${CMAKE_SOURCE_DIR}/ryostkl/libroccatryostkl
-  ${CMAKE_SOURCE_DIR}/savu/libroccatsavu
-  ${CMAKE_SOURCE_DIR}/skeltr/libroccatskeltr
-  ${CMAKE_SOURCE_DIR}/sova/libroccatsova
-  ${CMAKE_SOURCE_DIR}/suora/libroccatsuora
+  # ${CMAKE_SOURCE_DIR}/arvo/libroccatarvo
+  # ${CMAKE_SOURCE_DIR}/isku/libroccatisku
+  # ${CMAKE_SOURCE_DIR}/iskufx/libroccatiskufx
+  # ${CMAKE_SOURCE_DIR}/kiro/libroccatkiro
+  # ${CMAKE_SOURCE_DIR}/kone/libroccatkone
+  # ${CMAKE_SOURCE_DIR}/koneplus/libroccatkoneplus
+  # ${CMAKE_SOURCE_DIR}/konepure/libroccatkonepure
+  # ${CMAKE_SOURCE_DIR}/konepuremilitary/libroccatkonepuremilitary
+  # ${CMAKE_SOURCE_DIR}/konepureoptical/libroccatkonepureoptical
+  # ${CMAKE_SOURCE_DIR}/konextd/libroccatkonextd
+  # ${CMAKE_SOURCE_DIR}/konextdoptical/libroccatkonextdoptical
+  # ${CMAKE_SOURCE_DIR}/kova2016/libroccatkova2016
+  # ${CMAKE_SOURCE_DIR}/kovaplus/libroccatkovaplus
+  # ${CMAKE_SOURCE_DIR}/lua/libroccatlua
+  # ${CMAKE_SOURCE_DIR}/nyth/libroccatnyth
+  # ${CMAKE_SOURCE_DIR}/pyra/libroccatpyra
+  # ${CMAKE_SOURCE_DIR}/ryosmk/libroccatryosmk
+  # ${CMAKE_SOURCE_DIR}/ryosmkfx/libroccatryosmkfx
+  # ${CMAKE_SOURCE_DIR}/ryostkl/libroccatryostkl
+  # ${CMAKE_SOURCE_DIR}/savu/libroccatsavu
+  # ${CMAKE_SOURCE_DIR}/skeltr/libroccatskeltr
+  # ${CMAKE_SOURCE_DIR}/sova/libroccatsova
+  # ${CMAKE_SOURCE_DIR}/suora/libroccatsuora
   ${CMAKE_SOURCE_DIR}/tyon/libroccattyon
 )
 
@@ -51,8 +51,8 @@ SET(SOURCES
   roccat_srom.c
   roccat_strings.c
   roccat_swarm_rmp.c
-  roccat_talk.c
   roccat_talkfx.c
+  roccat_talk.c
   roccat_timer.c
   roccat_timers.c
 )

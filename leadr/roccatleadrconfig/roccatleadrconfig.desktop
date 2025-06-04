@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=leadr config
+Name[de]=leadr Konfiguration
+Comment=Modify Roccat leadr device settings
+Comment[de]=Roccat leadr Einstellungen ändern
+Type=Application
+Exec=roccatleadrconfig
+Icon=roccat
+Terminal=false
+Categories=Settings;HardwareSettings;GTK;

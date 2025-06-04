@@ -1,6 +1,3 @@
-#ifndef __ROCCAT_TALKFX_SELECTOR_H__
-#define __ROCCAT_TALKFX_SELECTOR_H__
-
 /*
  * This file is part of roccat-tools.
  *
@@ -18,28 +15,40 @@
  * along with roccat-tools. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef __ROCCAT_TALKFX_SELECTOR_H__
+#define __ROCCAT_TALKFX_SELECTOR_H__
+
+#include <glib-object.h>
 #include <gtk/gtk.h>
 
 G_BEGIN_DECLS
 
 #define ROCCAT_TALKFX_SELECTOR_TYPE (roccat_talkfx_selector_get_type())
 #define ROCCAT_TALKFX_SELECTOR(obj) (G_TYPE_CHECK_INSTANCE_CAST((obj), ROCCAT_TALKFX_SELECTOR_TYPE, RoccatTalkFXSelector))
-#define IS_ROCCAT_TALKFX_SELECTOR(obj) (G_TYPE_CHECK_INSTANCE_TYPE((obj), ROCCAT_TALKFX_SELECTOR_TYPE))
+#define ROCCAT_TALKFX_SELECTOR_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST((klass), ROCCAT_TALKFX_SELECTOR_TYPE, RoccatTalkFXSelectorClass))
+#define ROCCAT_IS_TALKFX_SELECTOR(obj) (G_TYPE_CHECK_INSTANCE_TYPE((obj), ROCCAT_TALKFX_SELECTOR_TYPE))
+#define ROCCAT_IS_TALKFX_SELECTOR_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass), ROCCAT_TALKFX_SELECTOR_TYPE))
+#define ROCCAT_TALKFX_SELECTOR_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS((obj), ROCCAT_TALKFX_SELECTOR_TYPE, RoccatTalkFXSelectorClass))
 
 typedef struct _RoccatTalkFXSelector RoccatTalkFXSelector;
+typedef struct _RoccatTalkFXSelectorClass RoccatTalkFXSelectorClass;
 typedef struct _RoccatTalkFXSelectorPrivate RoccatTalkFXSelectorPrivate;
 
 struct _RoccatTalkFXSelector {
-	GtkFrame frame;
+	GtkVBox parent;
 	RoccatTalkFXSelectorPrivate *priv;
 };
 
-GType roccat_talkfx_selector_get_type(void);
+struct _RoccatTalkFXSelectorClass {
+	GtkVBoxClass parent_class;
+};
+
+GType roccat_talkfx_selector_get_type(void) G_GNUC_CONST;
 GtkWidget *roccat_talkfx_selector_new(void);
 
+void roccat_talkfx_selector_set_active(RoccatTalkFXSelector *selector, gboolean active);
 gboolean roccat_talkfx_selector_get_active(RoccatTalkFXSelector *selector);
-void roccat_talkfx_selector_set_active(RoccatTalkFXSelector *selector, gboolean is_active);
 
 G_END_DECLS
 
-#endif
+#endif /* __ROCCAT_TALKFX_SELECTOR_H__ */

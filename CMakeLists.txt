@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8.12)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.5)
 
 PROJECT(roccat-tools C)
 
@@ -34,21 +34,9 @@ SET(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -DG_DISABLE_CAST_CHECKS -DG_
 SET(TRANSLATION_LANGUAGES de en)
 
 SET(ALL_DEVICES
-  arvo
-  isku iskufx
-  kiro
-  koneplus
-  konepure konepuremilitary konepureoptical
-  konextd konextdoptical
-  kovaplus kova2016
-  lua nyth pyra
-  ryosmk ryosmkfx ryostkl
-  savu skeltr sova suora tyon
+  tyon
+  leadr
 )
-
-IF(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-  LIST(APPEND ALL_DEVICES kone)
-ENDIF()
 
 IF(NOT DEVICES)
   SET(DEVICES ${ALL_DEVICES})
@@ -80,11 +68,6 @@ FIND_PACKAGE(GUDEV REQUIRED)
 FIND_PACKAGE(X11 REQUIRED)
 FIND_PACKAGE(GAMINGGEAR0 0.15.1 REQUIRED)
 FIND_PACKAGE(M REQUIRED)
-
-list_contains(DEVICES "ryosmk;ryostkl;ryosmkfx" contains)
-IF(contains)
-  FIND_PACKAGE(LUA ${WITH_LUA} EXACT REQUIRED)
-ENDIF()
 
 CONFIGURE_FILE(
   "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
