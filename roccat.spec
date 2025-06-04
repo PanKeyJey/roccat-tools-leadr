@@ -157,10 +157,6 @@ Requires: roccat
 Summary: Roccat Suora userlandtools
 Group: Applications/System
 
-%package tyon
-Requires: roccat
-Summary: Roccat Tyon userlandtools
-Group: Applications/System
 
 %description
 Roccat consists of a shared library and other files shared by device specific
@@ -258,9 +254,6 @@ manipulate the Profiles and Settings of a Roccat Sova keyboard.
 Suora consists of a console application and a GUI application. It helps users to
 manipulate the Profiles and Settings of a Roccat Suora keyboard.
 
-%description tyon
-Tyon consists of a console application and a GUI application. It helps users to
-manipulate the Profiles and Settings of a Roccat Tyon mouse.
 
 %prep
 %setup -q -n roccat-%{version}
@@ -426,11 +419,6 @@ gtk-update-icon-cache %{_prefix}/share/icons/hicolor &>dev/null || :
 %postun suora
 /sbin/ldconfig
 
-%post tyon
-/sbin/ldconfig
-
-%postun tyon
-/sbin/ldconfig
 
 %files
 %defattr(-,root,root)
@@ -693,16 +681,6 @@ gtk-update-icon-cache %{_prefix}/share/icons/hicolor &>dev/null || :
 %{_datadir}/applications/roccatsuoraconfig.desktop
 %{_mandir}/*/man1/roccatsuoracontrol*
 
-%files tyon
-%defattr(-,root,root)
-%{udevdir}/90-roccat-tyon.rules
-%{_bindir}/roccattyonconfig
-%{_bindir}/roccattyoncontrol
-%{_libdir}/libroccattyon.so*
-%{eventhandlerdir}/libtyoneventhandler.so
-%{gfx_plugindir}/libtyongfxplugin.so
-%{_datadir}/applications/roccattyonconfig.desktop
-%{_mandir}/*/man1/roccattyoncontrol*
 
 %changelog
 * Sat Apr 13 2019 Stefan Achatz <erazor_de@users.sourceforge.net> 5.9.0-1

@@ -1,6 +1,5 @@
 #include "roccat_talk_target_combo_box.h"
 #include "roccat_talk.h"
-#include "tyon.h"
 #include "gtk_roccat_helper.h"
 
 #define ROCCAT_TALK_TARGET_COMBO_BOX_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), ROCCAT_TALK_TARGET_COMBO_BOX_TYPE, RoccatTalkTargetComboBoxPrivate))
@@ -37,15 +36,6 @@ static GtkListStore *list_store_new(void) {
 											 VALUE_COLUMN, ROCCAT_TALK_DEVICE_MOUSE,
 										  -1);
 
-	gtk_roccat_list_store_append_with_values(list_store, NULL,
-											 NAME_COLUMN, roccat_talk_device_get_text_static(USB_DEVICE_ID_ROCCAT_TYON_BLACK),
-											 VALUE_COLUMN, USB_DEVICE_ID_ROCCAT_TYON_BLACK,
-										  -1);
-
-	gtk_roccat_list_store_append_with_values(list_store, NULL,
-											 NAME_COLUMN, roccat_talk_device_get_text_static(USB_DEVICE_ID_ROCCAT_TYON_WHITE),
-											 VALUE_COLUMN, USB_DEVICE_ID_ROCCAT_TYON_WHITE,
-										  -1);
 
 	return list_store;
 }

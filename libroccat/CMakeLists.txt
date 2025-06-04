@@ -22,7 +22,7 @@ INCLUDE_DIRECTORIES(
   # ${CMAKE_SOURCE_DIR}/skeltr/libroccatskeltr
   # ${CMAKE_SOURCE_DIR}/sova/libroccatsova
   # ${CMAKE_SOURCE_DIR}/suora/libroccatsuora
-  ${CMAKE_SOURCE_DIR}/tyon/libroccattyon
+  ${CMAKE_SOURCE_DIR}/leadr/libroccatleadr
 )
 
 SET(SOURCES
