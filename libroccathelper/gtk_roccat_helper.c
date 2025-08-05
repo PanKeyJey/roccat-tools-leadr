@@ -249,10 +249,18 @@ gint gtk_roccat_container_get_n_children(GtkContainer *container) {
 	return result;
 }
 
+void gtk_roccat_toggle_button_set_active(GtkToggleButton *toggle_button, gboolean is_active) {
+if (!GTK_IS_TOGGLE_BUTTON(toggle_button))
+return;
+gtk_toggle_button_set_active(toggle_button, is_active);
+}
+
+gboolean gtk_roccat_toggle_button_get_active(GtkToggleButton *toggle_button) {
+return GTK_IS_TOGGLE_BUTTON(toggle_button) ? gtk_toggle_button_get_active(toggle_button) : FALSE;
+}
+
 void gtk_roccat_toggle_button_toggle(GtkToggleButton *toggle_button) {
-       if (!GTK_IS_TOGGLE_BUTTON(toggle_button))
-               return;
-       gtk_toggle_button_set_active(toggle_button, !gtk_toggle_button_get_active(toggle_button));
+gtk_roccat_toggle_button_set_active(toggle_button, !gtk_roccat_toggle_button_get_active(toggle_button));
 }
 
 void gtk_roccat_table_clear(GtkTable *table) {

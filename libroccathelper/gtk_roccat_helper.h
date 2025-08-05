@@ -65,6 +65,8 @@ void gtk_roccat_wait(guint seconds);
 
 gint gtk_roccat_container_get_n_children(GtkContainer *container);
 
+void gtk_roccat_toggle_button_set_active(GtkToggleButton *toggle_button, gboolean is_active);
+gboolean gtk_roccat_toggle_button_get_active(GtkToggleButton *toggle_button);
 void gtk_roccat_toggle_button_toggle(GtkToggleButton *toggle_button);
 
 void gtk_roccat_table_clear(GtkTable *table);

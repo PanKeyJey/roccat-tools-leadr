@@ -17,6 +17,7 @@
 
 #include "leadr_tcu_frame.h"
 #include "leadr_control_unit.h"
+#include "gtk_roccat_helper.h"
 #include "i18n.h"
 
 #define leadr_TCU_FRAME_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST((klass), leadr_TCU_FRAME_TYPE, leadrSensorFrameClass))
@@ -53,13 +54,13 @@ enum {
 static guint signals[LAST_SIGNAL] = { 0 };
 
 guint leadr_tcu_frame_get_value(leadrSensorFrame *frame) {
-	return (gtk_toggle_button_get_active(frame->priv->active_button) == TRUE) ? leadr_TRACKING_CONTROL_UNIT_ON : leadr_TRACKING_CONTROL_UNIT_OFF;
+	return (gtk_roccat_toggle_button_get_active(frame->priv->active_button) == TRUE) ? leadr_TRACKING_CONTROL_UNIT_ON : leadr_TRACKING_CONTROL_UNIT_OFF;
 }
 
 void leadr_tcu_frame_set_value_blocked(leadrSensorFrame *frame, guint value) {
 	leadrSensorFramePrivate *priv = frame->priv;
 	g_signal_handler_block(G_OBJECT(priv->active_button), priv->active_handler);
-	gtk_toggle_button_set_active(frame->priv->active_button, (value == leadr_TRACKING_CONTROL_UNIT_ON) ? TRUE : FALSE);
+	gtk_roccat_toggle_button_set_active(frame->priv->active_button, (value == leadr_TRACKING_CONTROL_UNIT_ON) ? TRUE : FALSE);
 	g_signal_handler_unblock(G_OBJECT(priv->active_button), priv->active_handler);
 }
 
