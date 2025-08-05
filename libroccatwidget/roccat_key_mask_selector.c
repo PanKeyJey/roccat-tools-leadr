@@ -16,6 +16,7 @@
  */
 
 #include "roccat_key_mask_selector.h"
+#include "gtk_roccat_helper.h"
 #include "i18n-lib.h"
 
 #define ROCCAT_KEY_MASK_SELECTOR_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST((klass), ROCCAT_KEY_MASK_SELECTOR_TYPE, RoccatKeyMaskSelectorClass))

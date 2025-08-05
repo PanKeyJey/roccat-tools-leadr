@@ -1,4 +1,5 @@
 #include "roccat_talkfx_selector.h"
+#include "gtk_roccat_helper.h"
 
 G_DEFINE_TYPE(RoccatTalkFXSelector, roccat_talkfx_selector, GTK_TYPE_VBOX)
 

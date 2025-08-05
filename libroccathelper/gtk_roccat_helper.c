@@ -252,7 +252,8 @@ gint gtk_roccat_container_get_n_children(GtkContainer *container) {
 
 static void log_invalid_toggle(gpointer toggle_button, const gchar *func) {
         const gchar *type = G_IS_OBJECT(toggle_button) ? G_OBJECT_TYPE_NAME(toggle_button) : "non-GObject";
-        g_warning("%s: expected GtkToggleButton but got %s (%p)", func, type, toggle_button);
+        const gchar *name = GTK_IS_WIDGET(toggle_button) ? gtk_widget_get_name(GTK_WIDGET(toggle_button)) : "unknown";
+        g_warning("%s: expected GtkToggleButton but got %s '%s' (%p)", func, type, name, toggle_button);
 }
 
 void gtk_roccat_toggle_button_set_active(GtkToggleButton *toggle_button, gboolean is_active) {

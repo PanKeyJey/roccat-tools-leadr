@@ -16,6 +16,7 @@
  */
 
 #include "roccat_profile_page_tab_label.h"
+#include "gtk_roccat_helper.h"
 #include "i18n-lib.h"
 
 #define ROCCAT_PROFILE_PAGE_TAB_LABEL_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), ROCCAT_PROFILE_PAGE_TAB_LABEL_TYPE, RoccatProfilePageTabLabelPrivate))
