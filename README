@@ -1,10 +1,10 @@
 * Building
 
   Run `sh setup.sh` to build the tools. The script automatically
-  downloads and installs required `libgaminggear` and `libgaminggear-gtk`
-  libraries if they are missing. If build prerequisites are missing,
-  helper scripts for Ubuntu, Fedora, openSUSE, and Arch Linux are
-  available in the `scripts/` directory.
+  downloads and installs the required `libgaminggear` library from the
+  maintained GitHub mirror if it is missing. If build prerequisites are
+  missing, helper scripts for Ubuntu, Fedora, openSUSE, and Arch Linux
+  are available in the `scripts/` directory.
 
 * Contents
 

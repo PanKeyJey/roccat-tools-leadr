@@ -2,14 +2,14 @@
 set -e
 export PATH=/usr/bin:/bin:$PATH
 
-# Ensure libgaminggear dependencies are available
+# Ensure libgaminggear dependency is available
 if command -v pkg-config >/dev/null 2>&1; then
-  if ! pkg-config --exists libgaminggear-gtk; then
-    echo "Installing libgaminggear and libgaminggear-gtk..."
+  if ! pkg-config --exists gaminggear; then
+    echo "Installing libgaminggear..."
     /bin/sh scripts/install_libgaminggear.sh
   fi
 else
-  echo "pkg-config not found, installing libgaminggear dependencies..."
+  echo "pkg-config not found, installing libgaminggear..."
   /bin/sh scripts/install_libgaminggear.sh
 fi
 
