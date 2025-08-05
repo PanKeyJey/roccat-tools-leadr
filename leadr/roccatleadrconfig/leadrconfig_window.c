@@ -557,9 +557,11 @@ static GObject *constructor(GType gtype, guint n_properties, GObjectConstructPar
 	g_signal_connect(G_OBJECT(roccat_window), "device-removed", G_CALLBACK(device_remove_cb), NULL);
 	g_signal_connect(G_OBJECT(roccat_window), "device-added", G_CALLBACK(device_add_cb), NULL);
 
-	/* keep this order */
-	priv->dbus_proxy = leadr_dbus_proxy_new();
-	dbus_g_proxy_connect_signal(priv->dbus_proxy, "ProfileChanged", G_CALLBACK(actual_profile_changed_from_device_cb), window, NULL);
+       /* keep this order */
+       priv->dbus_proxy = leadr_dbus_proxy_new();
+       if (priv->dbus_proxy)
+               dbus_g_proxy_connect_signal(priv->dbus_proxy, "ProfileChanged",
+                               G_CALLBACK(actual_profile_changed_from_device_cb), window, NULL);
 
 	roccat_config_window_set_device_scanner(roccat_window, ROCCAT_DEVICE_SCANNER_INTERFACE(leadr_device_scanner_new()));
 
