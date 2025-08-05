@@ -36,12 +36,16 @@ gchar *leadr_device_read(RoccatDevice *device, guint report_id, gssize length, G
 }
 
 static gboolean leadr_check_write(RoccatDevice *device, GError **error) {
+        guint product_id = gaminggear_device_get_product_id(GAMINGGEAR_DEVICE(device));
+
         /*
-         * The Leadr behaves similar to older wireless mice like the Pyra.
-         * Using shorter wait times avoids "invalid status" errors when
-         * communicating via the wireless dongle.
+         * Use shorter wait times when communicating via the wireless dongle.
+         * Wired mode needs longer delays similar to the Tyon mouse.
          */
-        return roccat_check_write(device, leadr_INTERFACE_MOUSE, leadr_REPORT_ID_CONTROL, 110, 110, error);
+        if (product_id == USB_DEVICE_ID_ROCCAT_leadr_WIRELESS)
+                return roccat_check_write(device, leadr_INTERFACE_MOUSE, leadr_REPORT_ID_CONTROL, 110, 110, error);
+
+        return roccat_check_write(device, leadr_INTERFACE_MOUSE, leadr_REPORT_ID_CONTROL, 200, 500, error);
 }
 
 gboolean leadr_device_write(RoccatDevice *device, gchar const *buffer, gssize length, GError **error) {
