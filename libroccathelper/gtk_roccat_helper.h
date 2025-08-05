@@ -69,6 +69,12 @@ void gtk_roccat_toggle_button_set_active(GtkToggleButton *toggle_button, gboolea
 gboolean gtk_roccat_toggle_button_get_active(GtkToggleButton *toggle_button);
 void gtk_roccat_toggle_button_toggle(GtkToggleButton *toggle_button);
 
+#ifndef GTK_ROCCAT_HELPER_NO_TOGGLE_MACROS
+#define gtk_toggle_button_set_active gtk_roccat_toggle_button_set_active
+#define gtk_toggle_button_get_active gtk_roccat_toggle_button_get_active
+#define gtk_toggle_button_toggle gtk_roccat_toggle_button_toggle
+#endif
+
 void gtk_roccat_table_clear(GtkTable *table);
 
 G_END_DECLS

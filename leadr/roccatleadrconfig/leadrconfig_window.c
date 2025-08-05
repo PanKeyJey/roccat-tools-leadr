@@ -559,9 +559,12 @@ static GObject *constructor(GType gtype, guint n_properties, GObjectConstructPar
 
        /* keep this order */
        priv->dbus_proxy = leadr_dbus_proxy_new();
-       if (priv->dbus_proxy)
+       if (priv->dbus_proxy) {
                dbus_g_proxy_connect_signal(priv->dbus_proxy, "ProfileChanged",
                                G_CALLBACK(actual_profile_changed_from_device_cb), window, NULL);
+       } else {
+               g_debug("DBus proxy unavailable; device changes will not auto-sync");
+       }
 
 	roccat_config_window_set_device_scanner(roccat_window, ROCCAT_DEVICE_SCANNER_INTERFACE(leadr_device_scanner_new()));
 
