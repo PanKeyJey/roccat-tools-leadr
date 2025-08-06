@@ -16,6 +16,7 @@
  */
 
 #include "roccat_cpi_fixed_selector.h"
+#include "gtk_roccat_helper.h"
 #include "roccat_helper.h"
 #include "i18n-lib.h"
 

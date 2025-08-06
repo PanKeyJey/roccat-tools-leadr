@@ -15,6 +15,7 @@
  * along with roccat-tools. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#define GTK_ROCCAT_HELPER_NO_TOGGLE_MACROS
 #include "gtk_roccat_helper.h"
 #include <string.h>
 #include <time.h>
@@ -249,7 +250,33 @@ gint gtk_roccat_container_get_n_children(GtkContainer *container) {
 	return result;
 }
 
+static void log_invalid_toggle(gpointer toggle_button, const gchar *func) {
+	const gchar *type = G_IS_OBJECT(toggle_button) ? G_OBJECT_TYPE_NAME(toggle_button) : "non-GObject";
+	const gchar *name = GTK_IS_WIDGET(toggle_button) ? gtk_widget_get_name(GTK_WIDGET(toggle_button)) : "unknown";
+	g_warning("%s: expected GtkToggleButton but got %s '%s' (%p)", func, type, name, toggle_button);
+}
+
+void gtk_roccat_toggle_button_set_active(GtkToggleButton *toggle_button, gboolean is_active) {
+	if (!GTK_IS_TOGGLE_BUTTON(toggle_button)) {
+		log_invalid_toggle(toggle_button, G_STRFUNC);
+		return;
+	}
+	gtk_toggle_button_set_active(toggle_button, is_active);
+}
+
+gboolean gtk_roccat_toggle_button_get_active(GtkToggleButton *toggle_button) {
+	if (!GTK_IS_TOGGLE_BUTTON(toggle_button)) {
+		log_invalid_toggle(toggle_button, G_STRFUNC);
+		return FALSE;
+	}
+	return gtk_toggle_button_get_active(toggle_button);
+}
+
 void gtk_roccat_toggle_button_toggle(GtkToggleButton *toggle_button) {
+	if (!GTK_IS_TOGGLE_BUTTON(toggle_button)) {
+		log_invalid_toggle(toggle_button, G_STRFUNC);
+		return;
+	}
 	gtk_toggle_button_set_active(toggle_button, !gtk_toggle_button_get_active(toggle_button));
 }
 

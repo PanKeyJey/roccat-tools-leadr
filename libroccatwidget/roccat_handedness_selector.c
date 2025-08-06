@@ -16,6 +16,7 @@
  */
 
 #include "roccat_handedness_selector.h"
+#include "gtk_roccat_helper.h"
 #include "i18n-lib.h"
 
 #define ROCCAT_HANDEDNESS_SELECTOR_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST((klass), ROCCAT_HANDEDNESS_SELECTOR_TYPE, RoccatHandednessSelectorClass))

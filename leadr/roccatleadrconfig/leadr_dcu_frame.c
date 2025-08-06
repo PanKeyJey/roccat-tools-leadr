@@ -54,7 +54,7 @@ static gchar const * const state_key = "State";
 static void radio_toggled_cb(GtkToggleButton *radio, gpointer user_data) {
 	leadrDcuFrame *frame = (leadrDcuFrame *)user_data;
 
-	if (gtk_toggle_button_get_active(radio))
+	if (gtk_roccat_toggle_button_get_active(radio))
 		g_signal_emit((gpointer)frame, signals[CHANGED], 0);
 }
 
@@ -66,7 +66,7 @@ void leadr_dcu_frame_set_value_blocked(leadrDcuFrame *frame, guint new_value) {
 		value = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(child->data), state_key));
 		if (value == new_value) {
 			g_signal_handlers_block_by_func(G_OBJECT(child->data), radio_toggled_cb, frame);
-			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(child->data), TRUE);
+			gtk_roccat_toggle_button_set_active(GTK_TOGGLE_BUTTON(child->data), TRUE);
 			g_signal_handlers_unblock_by_func(G_OBJECT(child->data), radio_toggled_cb, frame);
 			break;
 		}

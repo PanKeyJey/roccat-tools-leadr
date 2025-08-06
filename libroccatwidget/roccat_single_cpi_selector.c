@@ -16,6 +16,7 @@
  */
 
 #include "roccat_single_cpi_selector.h"
+#include "gtk_roccat_helper.h"
 #include <gaminggear/gaminggear_hscale.h>
 
 #define ROCCAT_SINGLE_CPI_SELECTOR_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST((klass), ROCCAT_SINGLE_CPI_SELECTOR_TYPE, RoccatSingleCpiSelectorClass))
