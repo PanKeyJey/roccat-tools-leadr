@@ -95,9 +95,9 @@ void leadr_color_frame_set_from_rmp(leadrColorFrame *frame, leadrRmp *rmp) {
 	guint i;
 
 	if (leadr_rmp_get_light_chose_type(rmp) == leadr_RMP_LIGHT_CHOSE_TYPE_PALETTE)
-	gtk_roccat_toggle_button_set_active(priv->use_palette, TRUE);
+		gtk_roccat_toggle_button_set_active(priv->use_palette, TRUE);
 	else
-	gtk_roccat_toggle_button_set_active(priv->use_custom, TRUE);
+		gtk_roccat_toggle_button_set_active(priv->use_custom, TRUE);
 
 	gtk_roccat_toggle_button_set_active(priv->use_color_for_all, leadr_rmp_get_use_color_for_all(rmp));
 
@@ -105,7 +105,7 @@ void leadr_color_frame_set_from_rmp(leadrColorFrame *frame, leadrRmp *rmp) {
 		light_info = leadr_rmp_get_custom_light_info(rmp, i);
 		leadr_rmp_light_info_to_color(light_info, &color);
 		roccat_color_selection_button_set_custom_color(priv->colors[i], &color);
-	gtk_roccat_toggle_button_set_active(priv->buttons[i], (light_info->state == leadr_RMP_LIGHT_INFO_STATE_ON) ? TRUE : FALSE);
+		gtk_roccat_toggle_button_set_active(priv->buttons[i], (light_info->state == leadr_RMP_LIGHT_INFO_STATE_ON) ? TRUE : FALSE);
 		g_free(light_info);
 
 		light_info = leadr_rmp_get_rmp_light_info(rmp, i);
@@ -128,7 +128,7 @@ void leadr_color_frame_update_rmp(leadrColorFrame *frame, leadrRmp *rmp) {
 	for (i = 0; i < leadr_LIGHTS_NUM; ++i) {
 		roccat_color_selection_button_get_custom_color(priv->colors[i], &color);
 		light_info.index = 0; // FIXME check
-	light_info.state = gtk_roccat_toggle_button_get_active(priv->buttons[i]);
+		light_info.state = gtk_roccat_toggle_button_get_active(priv->buttons[i]);
 		light_info.red = color.red / GDK_ROCCAT_BYTE_TO_COLOR_FACTOR;
 		light_info.green = color.green / GDK_ROCCAT_BYTE_TO_COLOR_FACTOR;
 		light_info.blue = color.blue / GDK_ROCCAT_BYTE_TO_COLOR_FACTOR;
@@ -161,8 +161,8 @@ static void color_cb(RoccatColorSelectionButton *palette_button, gpointer user_d
 	guint i;
 
 	if (gtk_roccat_toggle_button_get_active(priv->use_color_for_all)) {
-// TODO gets called again when changing other light
-	if (gtk_roccat_toggle_button_get_active(priv->use_palette)) {
+		// TODO gets called again when changing other light
+		if (gtk_roccat_toggle_button_get_active(priv->use_palette)) {
 			index = roccat_color_selection_button_get_palette_index(palette_button);
 			for (i = 0; i < leadr_LIGHTS_NUM; ++i)
 				roccat_color_selection_button_set_palette_index(priv->colors[i], index);

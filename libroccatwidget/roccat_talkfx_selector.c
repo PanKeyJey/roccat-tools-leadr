@@ -4,20 +4,20 @@
 G_DEFINE_TYPE(RoccatTalkFXSelector, roccat_talkfx_selector, GTK_TYPE_TOGGLE_BUTTON)
 
 struct _RoccatTalkFXSelectorPrivate {
-        GtkWidget *label;
+	GtkWidget *label;
 };
 
 static void roccat_talkfx_selector_class_init(RoccatTalkFXSelectorClass *klass) {
-        GObjectClass *object_class = G_OBJECT_CLASS(klass);
-        // Brak specjalnych metod w tym uproszczonym modelu
+	GObjectClass *object_class = G_OBJECT_CLASS(klass);
+	// Brak specjalnych metod w tym uproszczonym modelu
 }
 
 static void roccat_talkfx_selector_init(RoccatTalkFXSelector *selector) {
-        selector->priv = g_new0(RoccatTalkFXSelectorPrivate, 1);
+	selector->priv = g_new0(RoccatTalkFXSelectorPrivate, 1);
 
-        selector->priv->label = gtk_label_new("Tyon TalkFX selector initialized");
-        gtk_container_add(GTK_CONTAINER(selector), selector->priv->label);
-        gtk_widget_show(selector->priv->label);
+	selector->priv->label = gtk_label_new("Tyon TalkFX selector initialized");
+	gtk_container_add(GTK_CONTAINER(selector), selector->priv->label);
+	gtk_widget_show(selector->priv->label);
 }
 
 GtkWidget *roccat_talkfx_selector_new(void) {

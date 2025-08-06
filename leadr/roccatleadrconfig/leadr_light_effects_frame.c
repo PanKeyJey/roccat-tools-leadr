@@ -68,12 +68,12 @@ void leadr_light_effects_frame_set_from_rmp(leadrLightEffectsFrame *frame, leadr
 	GtkRadioButton *radio;
 
 	radio = find_radio(priv->radios_color_flow, leadr_rmp_get_light_color_flow(rmp));
-if (radio)
-gtk_roccat_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio), TRUE);
+	if (radio)
+		gtk_roccat_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio), TRUE);
 
 	radio = find_radio(priv->radios_effect_type, leadr_rmp_get_light_effect_type(rmp));
-if (radio)
-gtk_roccat_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio), TRUE);
+	if (radio)
+		gtk_roccat_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio), TRUE);
 
 	gaminggear_hscale_set_value(priv->speed, leadr_rmp_get_light_effect_speed(rmp));
 }
