@@ -36,9 +36,7 @@
 #include "roccat_helper.h"
 #include "roccat.h"
 #include "leadr_firmware.h"
-#include "leadr_talk.h"
 #include "leadr_gfx.h"
-#include "talkfx.h"
 #include "i18n.h"
 
 #define leadrCONFIG_WINDOW_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST((klass), leadrCONFIG_WINDOW_TYPE, leadrconfigWindowClass))
@@ -135,58 +133,73 @@ static void set_rmp(leadrconfigWindow *window, guint profile_index, leadrRmp *rm
 	guint profile_number = profile_index + 1;
 	leadr_profile_page_set_rmp(profile_page, rmp);
 	roccat_config_window_pages_set_page_unmoved(ROCCAT_CONFIG_WINDOW_PAGES(window), ROCCAT_PROFILE_PAGE(profile_page));
-        leadr_dbus_emit_profile_data_changed_outside(window->priv->dbus_proxy, profile_number);
+	leadr_dbus_emit_profile_data_changed_outside(window->priv->dbus_proxy, profile_number);
 }
 
-static void debug_apply_colors(RoccatDevice *device) {
-        GError *error = NULL;
-        guint32 cyan_color;
-        guint32 effect;
-        guint i;
+static void apply_colors_gfx(RoccatDevice *device, leadrRmp *rmp) {
+	leadrGfx *gfx;
+	guint32 color;
+	gboolean use_palette;
+	guint i;
 
-        /* brightness in highest byte, then red, green, blue */
-        cyan_color = (0xffu << 24) | (0x00u << 16) | (0xffu << 8) | 0xffu;
+	use_palette =
+		(leadr_rmp_get_light_chose_type(rmp) ==
+		 leadr_RMP_LIGHT_CHOSE_TYPE_PALETTE);
 
-        g_message("Approach 1: profile save already applied");
-        g_usleep(3 * G_USEC_PER_SEC);
+	gfx = leadr_gfx_new(device);
 
-        g_message("Approach 2: GFX");
-        leadrGfx *gfx = leadr_gfx_new(device);
-        for (i = 0; i < leadr_LIGHTS_NUM; ++i)
-                leadr_gfx_set_color(gfx, i, cyan_color);
-        if (!leadr_gfx_update(gfx, &error) && error) {
-                g_message("GFX error: %s", error->message);
-                g_clear_error(&error);
-        }
-        g_object_unref(gfx);
-        g_usleep(3 * G_USEC_PER_SEC);
+	for (i = 0; i < leadr_LIGHTS_NUM; ++i) {
+		leadrRmpLightInfo *light_info;
+		guint8 brightness;
 
-        g_message("Approach 3: TalkFX");
-        effect = (ROCCAT_TALKFX_ZONE_AMBIENT << ROCCAT_TALKFX_ZONE_BIT_SHIFT) |
-                 (ROCCAT_TALKFX_EFFECT_ON << ROCCAT_TALKFX_EFFECT_BIT_SHIFT) |
-                 (ROCCAT_TALKFX_SPEED_OFF << ROCCAT_TALKFX_SPEED_BIT_SHIFT);
-        if (!leadr_talkfx(device, effect, cyan_color, cyan_color, &error) && error) {
-                g_message("TalkFX error: %s", error->message);
-                g_clear_error(&error);
-        }
+		if (use_palette) {
+			leadrRmpLightInfo const *standard_info;
+			light_info = leadr_rmp_get_rmp_light_info(rmp, i);
+			standard_info =
+				leadr_rmp_light_info_get_standard(light_info->index);
+			brightness =
+				(light_info->state ==
+				 leadr_RMP_LIGHT_INFO_STATE_ON) ? 0xff : 0x00;
+			color = ((guint32)brightness << 24) |
+				((guint32)standard_info->red << 16) |
+				((guint32)standard_info->green << 8) |
+				(guint32)standard_info->blue;
+			g_free(light_info);
+		} else {
+			light_info = leadr_rmp_get_custom_light_info(rmp, i);
+			brightness =
+				(light_info->state ==
+				 leadr_RMP_LIGHT_INFO_STATE_ON) ? 0xff : 0x00;
+			color = ((guint32)brightness << 24) |
+				((guint32)light_info->red << 16) |
+				((guint32)light_info->green << 8) |
+				(guint32)light_info->blue;
+			g_free(light_info);
+		}
+
+		leadr_gfx_set_color(gfx, i, color);
+	}
+
+	(void)leadr_gfx_update(gfx, NULL);
+	g_object_unref(gfx);
 }
 
 static gboolean save_single(leadrconfigWindow *window, leadrRmp *rmp, guint profile_index, GError **error) {
-        RoccatDevice *device = roccat_config_window_get_device(ROCCAT_CONFIG_WINDOW(window));
+	RoccatDevice *device = roccat_config_window_get_device(ROCCAT_CONFIG_WINDOW(window));
 
 	if (device)
 		leadr_rmp_save(device, rmp, profile_index, error);
 	else
 		leadr_rmp_save_actual(rmp, profile_index, error);
 
-        if (*error)
-                return FALSE;
-        else {
-                set_rmp(window, profile_index, rmp);
-                if (device)
-                        debug_apply_colors(device);
-                return TRUE;
-        }
+	if (*error)
+		return FALSE;
+	else {
+		set_rmp(window, profile_index, rmp);
+		if (device)
+			apply_colors_gfx(device, rmp);
+		return TRUE;
+	}
 }
 
 static gboolean save_all(leadrconfigWindow *window, gboolean ask) {
@@ -598,10 +611,10 @@ static GObject *constructor(GType gtype, guint n_properties, GObjectConstructPar
 	       /* keep this order */
 	       priv->dbus_proxy = leadr_dbus_proxy_new();
 	       if (priv->dbus_proxy) {
-		               dbus_g_proxy_connect_signal(priv->dbus_proxy, "ProfileChanged",
-			                               G_CALLBACK(actual_profile_changed_from_device_cb), window, NULL);
+			       dbus_g_proxy_connect_signal(priv->dbus_proxy, "ProfileChanged",
+						       G_CALLBACK(actual_profile_changed_from_device_cb), window, NULL);
 	       } else {
-		               g_debug("DBus proxy unavailable; device changes will not auto-sync");
+			       g_debug("DBus proxy unavailable; device changes will not auto-sync");
 	       }
 
 	roccat_config_window_set_device_scanner(roccat_window, ROCCAT_DEVICE_SCANNER_INTERFACE(leadr_device_scanner_new()));
