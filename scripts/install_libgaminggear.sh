@@ -4,6 +4,22 @@ export PATH=/usr/bin:/bin:$PATH
 
 SCRIPT_DIR=$(cd "${0%/*}" && pwd)
 DEPS_DIR="$SCRIPT_DIR/../deps"
+# Ensure libcanberra is available for the build
+if ! pkg-config --exists libcanberra 2>/dev/null; then
+  echo "Installing libcanberra..."
+  if command -v apt-get >/dev/null 2>&1; then
+    sudo apt-get update && sudo apt-get install -y libcanberra-dev
+  elif command -v yum >/dev/null 2>&1; then
+    sudo yum install -y libcanberra-devel
+  elif command -v zypper >/dev/null 2>&1; then
+    sudo zypper install -y libcanberra-devel
+  elif command -v pacman >/dev/null 2>&1; then
+    sudo pacman -S --needed libcanberra
+  else
+    echo "Please install libcanberra development package manually." >&2
+  fi
+fi
+
 /bin/mkdir -p "$DEPS_DIR"
 cd "$DEPS_DIR"
 

@@ -1,2 +1,9 @@
 #!/bin/sh
-sudo pacman -S --needed gcc cmake pkgconf git dbus-glib gtk2 libgudev libx11 libcanberra
+set -e
+
+if ! command -v pacman >/dev/null 2>&1; then
+  echo "pacman not found; this helper is intended for Arch Linux." >&2
+  exit 0
+fi
+
+sudo pacman -S --needed gcc cmake pkgconf git glib2 dbus-glib gtk2 libgudev libx11 libcanberra libnotify
