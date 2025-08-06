@@ -117,34 +117,34 @@ void leadr_color_frame_set_from_rmp(leadrColorFrame *frame, leadrRmp *rmp) {
 }
 
 void leadr_color_frame_update_rmp(leadrColorFrame *frame, leadrRmp *rmp) {
-       leadrColorFramePrivate *priv = frame->priv;
-       leadrRmpLightInfo light_info;
-       GdkColor color;
-       guint i;
-       gboolean use_palette;
+	leadrColorFramePrivate *priv = frame->priv;
+	leadrRmpLightInfo light_info;
+	GdkColor color;
+	guint i;
+	gboolean use_palette;
 
-       use_palette = gtk_roccat_toggle_button_get_active(priv->use_palette);
-       leadr_rmp_set_light_chose_type(rmp, use_palette ? leadr_RMP_LIGHT_CHOSE_TYPE_PALETTE : leadr_RMP_LIGHT_CHOSE_TYPE_CUSTOM);
-       leadr_rmp_set_use_color_for_all(rmp, gtk_roccat_toggle_button_get_active(priv->use_color_for_all));
+	use_palette = gtk_roccat_toggle_button_get_active(priv->use_palette);
+	leadr_rmp_set_light_chose_type(rmp, use_palette ? leadr_RMP_LIGHT_CHOSE_TYPE_PALETTE : leadr_RMP_LIGHT_CHOSE_TYPE_CUSTOM);
+	leadr_rmp_set_use_color_for_all(rmp, gtk_roccat_toggle_button_get_active(priv->use_color_for_all));
 
-       for (i = 0; i < leadr_LIGHTS_NUM; ++i) {
-               if (use_palette) {
-                       light_info = *leadr_rmp_light_info_get_standard(roccat_color_selection_button_get_palette_index(priv->colors[i]));
-                       light_info.state = gtk_roccat_toggle_button_get_active(priv->buttons[i]) ?
-                               leadr_RMP_LIGHT_INFO_STATE_ON : leadr_RMP_LIGHT_INFO_STATE_OFF;
-                       leadr_rmp_set_rmp_light_info(rmp, i, &light_info);
-               } else {
-                       roccat_color_selection_button_get_custom_color(priv->colors[i], &color);
-                       light_info.index = 0; /* palette index unused for custom colors */
-                       light_info.state = gtk_roccat_toggle_button_get_active(priv->buttons[i]) ?
-                               leadr_RMP_LIGHT_INFO_STATE_ON : leadr_RMP_LIGHT_INFO_STATE_OFF;
-                       light_info.red = color.red / GDK_ROCCAT_BYTE_TO_COLOR_FACTOR;
-                       light_info.green = color.green / GDK_ROCCAT_BYTE_TO_COLOR_FACTOR;
-                       light_info.blue = color.blue / GDK_ROCCAT_BYTE_TO_COLOR_FACTOR;
-                       light_info.null = 0;
-                       leadr_rmp_set_custom_light_info(rmp, i, &light_info);
-               }
-       }
+	for (i = 0; i < leadr_LIGHTS_NUM; ++i) {
+		if (use_palette) {
+			light_info = *leadr_rmp_light_info_get_standard(roccat_color_selection_button_get_palette_index(priv->colors[i]));
+			light_info.state = gtk_roccat_toggle_button_get_active(priv->buttons[i]) ?
+			leadr_RMP_LIGHT_INFO_STATE_ON : leadr_RMP_LIGHT_INFO_STATE_OFF;
+			leadr_rmp_set_rmp_light_info(rmp, i, &light_info);
+		} else {
+			roccat_color_selection_button_get_custom_color(priv->colors[i], &color);
+			light_info.index = 0; /* palette index unused for custom colors */
+			light_info.state = gtk_roccat_toggle_button_get_active(priv->buttons[i]) ?
+			leadr_RMP_LIGHT_INFO_STATE_ON : leadr_RMP_LIGHT_INFO_STATE_OFF;
+			light_info.red = color.red / GDK_ROCCAT_BYTE_TO_COLOR_FACTOR;
+			light_info.green = color.green / GDK_ROCCAT_BYTE_TO_COLOR_FACTOR;
+			light_info.blue = color.blue / GDK_ROCCAT_BYTE_TO_COLOR_FACTOR;
+			light_info.null = 0;
+			leadr_rmp_set_custom_light_info(rmp, i, &light_info);
+		}
+	}
 }
 
 GtkWidget *leadr_color_frame_new(void) {
