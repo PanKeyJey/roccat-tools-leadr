@@ -1,2 +1,2 @@
 #!/bin/sh
-sudo pacman -S --needed gcc cmake pkgconf git dbus-glib gtk2 libgudev libx11
+sudo pacman -S --needed gcc cmake pkgconf git dbus-glib gtk2 libgudev libx11 libcanberra

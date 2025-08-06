@@ -4,7 +4,8 @@
   downloads and installs the required `libgaminggear` library from the
   maintained GitHub mirror if it is missing. If build prerequisites are
   missing, helper scripts for Ubuntu, Fedora, openSUSE, and Arch Linux
-  are available in the `scripts/` directory.
+  are available in the `scripts/` directory and will also install the
+  `libcanberra` sound dependency.
 
 * Contents
 

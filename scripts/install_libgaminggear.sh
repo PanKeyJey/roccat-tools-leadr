@@ -13,6 +13,8 @@ fi
 cd libgaminggear
 # Update ancient CMake requirement so modern versions can configure the project
 sed -i '1s/.*/cmake_minimum_required(VERSION 3.5)/' CMakeLists.txt
+# Enforce modern link policy required by recent CMake releases
+sed -i '/CMAKE_POLICY(SET CMP0022/s/OLD/NEW/' CMakeLists.txt
 /bin/mkdir -p build && cd build
 cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
 make -j$(nproc)
