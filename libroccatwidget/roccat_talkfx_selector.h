@@ -35,12 +35,12 @@ typedef struct _RoccatTalkFXSelectorClass RoccatTalkFXSelectorClass;
 typedef struct _RoccatTalkFXSelectorPrivate RoccatTalkFXSelectorPrivate;
 
 struct _RoccatTalkFXSelector {
-	GtkVBox parent;
-	RoccatTalkFXSelectorPrivate *priv;
+        GtkToggleButton parent;
+        RoccatTalkFXSelectorPrivate *priv;
 };
 
 struct _RoccatTalkFXSelectorClass {
-	GtkVBoxClass parent_class;
+        GtkToggleButtonClass parent_class;
 };
 
 GType roccat_talkfx_selector_get_type(void) G_GNUC_CONST;
