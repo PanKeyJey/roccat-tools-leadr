@@ -36,7 +36,9 @@
 #include "roccat_helper.h"
 #include "roccat.h"
 #include "leadr_firmware.h"
-#include "leadr_gfx.h"
+#include "leadr_talk.h"
+#include "talkfx.h"
+#include "leadr_profile_settings.h"
 #include "i18n.h"
 
 #define leadrCONFIG_WINDOW_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST((klass), leadrCONFIG_WINDOW_TYPE, leadrconfigWindowClass))
@@ -136,52 +138,63 @@ static void set_rmp(leadrconfigWindow *window, guint profile_index, leadrRmp *rm
 	leadr_dbus_emit_profile_data_changed_outside(window->priv->dbus_proxy, profile_number);
 }
 
-static void apply_colors_gfx(RoccatDevice *device, leadrRmp *rmp) {
-	leadrGfx *gfx;
-	guint32 color;
+static void apply_colors_talkfx(RoccatDevice *device, leadrRmp *rmp) {
 	gboolean use_palette;
+	guint8 effect_type;
+	guint8 speed;
 	guint i;
 
 	use_palette =
 		(leadr_rmp_get_light_chose_type(rmp) ==
 		 leadr_RMP_LIGHT_CHOSE_TYPE_PALETTE);
-
-	gfx = leadr_gfx_new(device);
+	effect_type = leadr_rmp_get_light_effect_type(rmp);
+	speed = leadr_rmp_get_light_effect_speed(rmp);
 
 	for (i = 0; i < leadr_LIGHTS_NUM; ++i) {
 		leadrRmpLightInfo *light_info;
-		guint8 brightness;
+		leadrRmpLightInfo const *standard_info;
+		guint32 color;
+		guint32 effect;
+		guint32 ambient_color = 0;
+		guint32 event_color = 0;
+		guint zone;
 
 		if (use_palette) {
-			leadrRmpLightInfo const *standard_info;
 			light_info = leadr_rmp_get_rmp_light_info(rmp, i);
 			standard_info =
 				leadr_rmp_light_info_get_standard(light_info->index);
-			brightness =
-				(light_info->state ==
-				 leadr_RMP_LIGHT_INFO_STATE_ON) ? 0xff : 0x00;
-			color = ((guint32)brightness << 24) |
-				((guint32)standard_info->red << 16) |
+			color = ((guint32)standard_info->red << 16) |
 				((guint32)standard_info->green << 8) |
 				(guint32)standard_info->blue;
-			g_free(light_info);
 		} else {
 			light_info = leadr_rmp_get_custom_light_info(rmp, i);
-			brightness =
-				(light_info->state ==
-				 leadr_RMP_LIGHT_INFO_STATE_ON) ? 0xff : 0x00;
-			color = ((guint32)brightness << 24) |
-				((guint32)light_info->red << 16) |
+			color = ((guint32)light_info->red << 16) |
 				((guint32)light_info->green << 8) |
 				(guint32)light_info->blue;
-			g_free(light_info);
 		}
 
-		leadr_gfx_set_color(gfx, i, color);
-	}
+		effect = ((i == 0 ? ROCCAT_TALKFX_ZONE_AMBIENT : ROCCAT_TALKFX_ZONE_EVENT)
+				<< ROCCAT_TALKFX_ZONE_BIT_SHIFT) |
+				((effect_type & 0xff) << ROCCAT_TALKFX_EFFECT_BIT_SHIFT) |
+				((speed & 0xff) << ROCCAT_TALKFX_SPEED_BIT_SHIFT);
 
-	(void)leadr_gfx_update(gfx, NULL);
-	g_object_unref(gfx);
+		if (light_info->state != leadr_RMP_LIGHT_INFO_STATE_ON) {
+			effect &= ~(ROCCAT_TALKFX_EFFECT_BIT_MASK |
+				ROCCAT_TALKFX_SPEED_BIT_MASK);
+			effect |= (ROCCAT_TALKFX_EFFECT_OFF <<
+				ROCCAT_TALKFX_EFFECT_BIT_SHIFT);
+			color = 0;
+		}
+
+		zone = (i == 0) ? ROCCAT_TALKFX_ZONE_AMBIENT : ROCCAT_TALKFX_ZONE_EVENT;
+		if (zone == ROCCAT_TALKFX_ZONE_AMBIENT)
+			ambient_color = color;
+		else
+			event_color = color;
+
+		leadr_talkfx(device, effect, ambient_color, event_color, NULL);
+		g_free(light_info);
+	}
 }
 
 static gboolean save_single(leadrconfigWindow *window, leadrRmp *rmp, guint profile_index, GError **error) {
@@ -197,7 +210,7 @@ static gboolean save_single(leadrconfigWindow *window, leadrRmp *rmp, guint prof
 	else {
 		set_rmp(window, profile_index, rmp);
 		if (device)
-			apply_colors_gfx(device, rmp);
+			apply_colors_talkfx(device, rmp);
 		return TRUE;
 	}
 }
