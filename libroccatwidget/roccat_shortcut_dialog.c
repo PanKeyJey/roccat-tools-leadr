@@ -38,12 +38,12 @@ struct _RoccatShortcutDialogClass {
 };
 
 struct _RoccatShortcutDialogPrivate {
-        GtkWidget *ok_button;
-        GaminggearHidComboBox *combo_box;
-        GtkCheckButton *ctrl;
-        GtkCheckButton *shift;
-        GtkCheckButton *alt;
-        GtkCheckButton *win;
+	GtkWidget *ok_button;
+	GaminggearHidComboBox *combo_box;
+	GtkCheckButton *ctrl;
+	GtkCheckButton *shift;
+	GtkCheckButton *alt;
+	GtkCheckButton *win;
 };
 
 G_DEFINE_TYPE(RoccatShortcutDialog, roccat_shortcut_dialog, GTK_TYPE_DIALOG);
@@ -99,10 +99,10 @@ guint8 roccat_shortcut_dialog_get_hid(RoccatShortcutDialog *shortcut_dialog) {
 }
 
 void roccat_shortcut_dialog_set_hid(RoccatShortcutDialog *shortcut_dialog, guint8 hid_usage_id) {
-        RoccatShortcutDialogPrivate *priv = shortcut_dialog->priv;
+	RoccatShortcutDialogPrivate *priv = shortcut_dialog->priv;
 
-        gaminggear_hid_combo_box_set_value(priv->combo_box, hid_usage_id);
-        update_ok_button(shortcut_dialog);
+	gaminggear_hid_combo_box_set_value(priv->combo_box, hid_usage_id);
+	update_ok_button(shortcut_dialog);
 }
 
 GtkWidget *roccat_shortcut_dialog_new(GtkWindow *parent) {
@@ -177,9 +177,9 @@ static void roccat_shortcut_dialog_init(RoccatShortcutDialog *shortcut_dialog) {
 	g_signal_connect(G_OBJECT(priv->win), "toggled", G_CALLBACK(changed_cb), shortcut_dialog);
 	g_signal_connect(G_OBJECT(shortcut_dialog), "key-press-event", G_CALLBACK(key_press_event_cb), shortcut_dialog);
 
-        gtk_widget_show_all(GTK_WIDGET(content_area));
+	gtk_widget_show_all(GTK_WIDGET(content_area));
 
-        update_ok_button(shortcut_dialog);
+	update_ok_button(shortcut_dialog);
 }
 
 static void roccat_shortcut_dialog_class_init(RoccatShortcutDialogClass *klass) {
@@ -193,14 +193,14 @@ GaminggearMacro *roccat_shortcut_dialog_get_macro(RoccatShortcutDialog *shortcut
 	gboolean ctrl, shift, alt, win;
 	gchar *shortcut_name;
 
-        hid_usage_id = roccat_shortcut_dialog_get_hid(shortcut_dialog);
-        ctrl = roccat_shortcut_dialog_get_ctrl(shortcut_dialog);
-        shift = roccat_shortcut_dialog_get_shift(shortcut_dialog);
-        alt = roccat_shortcut_dialog_get_alt(shortcut_dialog);
-        win = roccat_shortcut_dialog_get_win(shortcut_dialog);
+	hid_usage_id = roccat_shortcut_dialog_get_hid(shortcut_dialog);
+	ctrl = roccat_shortcut_dialog_get_ctrl(shortcut_dialog);
+	shift = roccat_shortcut_dialog_get_shift(shortcut_dialog);
+	alt = roccat_shortcut_dialog_get_alt(shortcut_dialog);
+	win = roccat_shortcut_dialog_get_win(shortcut_dialog);
 
-        if (!hid_usage_id && !ctrl && !shift && !alt && !win)
-                return NULL;
+	if (!hid_usage_id && !ctrl && !shift && !alt && !win)
+		return NULL;
 
 	shortcut_name = roccat_shortcut_dialog_create_name_full(ctrl, shift, alt, win, hid_usage_id);
 	gaminggear_macro = gaminggear_macro_new(_("Shortcut"), shortcut_name, NULL);
@@ -232,15 +232,15 @@ GaminggearMacro *roccat_shortcut_dialog_get_macro(RoccatShortcutDialog *shortcut
 		gaminggear_macro_add_keystroke(gaminggear_macro, &keystroke);
 	}
 
-        if (hid_usage_id) {
-                keystroke.key = hid_usage_id;
+	if (hid_usage_id) {
+		keystroke.key = hid_usage_id;
 
-                keystroke.action = GAMINGGEAR_MACRO_KEYSTROKE_ACTION_PRESS;
-                gaminggear_macro_add_keystroke(gaminggear_macro, &keystroke);
+		keystroke.action = GAMINGGEAR_MACRO_KEYSTROKE_ACTION_PRESS;
+		gaminggear_macro_add_keystroke(gaminggear_macro, &keystroke);
 
-                keystroke.action = GAMINGGEAR_MACRO_KEYSTROKE_ACTION_RELEASE;
-                gaminggear_macro_add_keystroke(gaminggear_macro, &keystroke);
-        }
+		keystroke.action = GAMINGGEAR_MACRO_KEYSTROKE_ACTION_RELEASE;
+		gaminggear_macro_add_keystroke(gaminggear_macro, &keystroke);
+	}
 
 	if (win) {
 		keystroke.key = HID_UID_KB_LEFT_GUI;
@@ -279,14 +279,14 @@ gchar *roccat_shortcut_dialog_create_name_full(gboolean ctrl, gboolean shift, gb
 	alt_str = alt ? _("Alt+") : "";
 	win_str = win ? _("Win+") : "";
 
-        hid = hid_usage_id ? gaminggear_hid_to_name(hid_usage_id) : g_strdup("");
-        result = g_strdup_printf("%s%s%s%s%s", ctrl_str, shift_str, alt_str, win_str, hid);
-        g_free(hid);
+	hid = hid_usage_id ? gaminggear_hid_to_name(hid_usage_id) : g_strdup("");
+	result = g_strdup_printf("%s%s%s%s%s", ctrl_str, shift_str, alt_str, win_str, hid);
+	g_free(hid);
 
-        if (!hid_usage_id && result[0] != '\0')
-                result[strlen(result) - 1] = '\0';
+	if (!hid_usage_id && result[0] != '\0')
+		result[strlen(result) - 1] = '\0';
 
-        return result;
+	return result;
 }
 
 gchar *roccat_shortcut_dialog_create_name(guint8 modifier, guint hid_usage_id) {
