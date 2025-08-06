@@ -37,6 +37,7 @@
 #include "roccat.h"
 #include "leadr_firmware.h"
 #include "leadr_talk.h"
+#include "leadr_gfx.h"
 #include "talkfx.h"
 #include "leadr_profile_settings.h"
 #include "i18n.h"
@@ -197,8 +198,93 @@ static void apply_colors_talkfx(RoccatDevice *device, leadrRmp *rmp) {
 	}
 }
 
-static gboolean save_single(leadrconfigWindow *window, leadrRmp *rmp, guint profile_index, GError **error) {
-	RoccatDevice *device = roccat_config_window_get_device(ROCCAT_CONFIG_WINDOW(window));
+static void apply_colors_gfx(RoccatDevice *device, leadrRmp *rmp)
+{
+	leadrGfx *gfx;
+	gboolean use_palette;
+	guint i;
+
+	gfx = leadr_gfx_new(device);
+	use_palette = (leadr_rmp_get_light_chose_type(rmp) ==
+		       ledr_RMP_LIGHT_CHOSE_TYPE_PALETTE);
+
+	for (i = 0; i < leadr_LIGHTS_NUM; ++i) {
+		leadrRmpLightInfo *light_info;
+		leadrRmpLightInfo const *standard_info;
+		guint32 color = 0;
+
+		if (use_palette) {
+			light_info = leadr_rmp_get_rmp_light_info(rmp, i);
+			standard_info = leadr_rmp_light_info_get_standard(
+			    light_info->index);
+			if (light_info->state == ledr_RMP_LIGHT_INFO_STATE_ON)
+				color = ((guint32)standard_info->red << 16) |
+					((guint32)standard_info->green << 8) |
+					(guint32)standard_info->blue;
+		} else {
+			light_info = leadr_rmp_get_custom_light_info(rmp, i);
+			if (light_info->state == ledr_RMP_LIGHT_INFO_STATE_ON)
+				color = ((guint32)light_info->red << 16) |
+					((guint32)light_info->green << 8) |
+					(guint32)light_info->blue;
+		}
+
+		leadr_gfx_set_color(gfx, i, color);
+		g_free(light_info);
+	}
+
+	leadr_gfx_update(gfx, NULL);
+	g_object_unref(gfx);
+}
+
+typedef struct {
+	RoccatDevice *device;
+	leadrRmp *rmp;
+	guint step;
+} ColorApplyCtx;
+
+static gboolean apply_colors_sequence_cb(gpointer user_data)
+{
+	ColorApplyCtx *ctx = user_data;
+
+	if (ctx->step == 1) {
+		g_message("Approach 2: TalkFX");
+		apply_colors_talkfx(ctx->device, ctx->rmp);
+		ctx->step = 2;
+		g_timeout_add_seconds(5, apply_colors_sequence_cb, ctx);
+	} else if (ctx->step == 2) {
+		g_message("Approach 3: GFX");
+		apply_colors_gfx(ctx->device, ctx->rmp);
+		g_object_unref(ctx->device);
+		leadr_rmp_free(ctx->rmp);
+		g_free(ctx);
+	} else {
+		g_object_unref(ctx->device);
+		leadr_rmp_free(ctx->rmp);
+		g_free(ctx);
+	}
+
+	return FALSE;
+}
+
+static void apply_colors_sequence(RoccatDevice *device, leadrRmp *rmp)
+{
+	ColorApplyCtx *ctx;
+
+	ctx = g_new0(ColorApplyCtx, 1);
+	ctx->device = g_object_ref(device);
+	ctx->rmp = leadr_rmp_dup(rmp);
+	ctx->step = 1;
+
+	g_message("Approach 1: Standard save");
+	g_timeout_add_seconds(5, apply_colors_sequence_cb, ctx);
+}
+
+static gboolean save_single(leadrconfigWindow *window, leadrRmp *rmp,
+			    guint profile_index, GError **error)
+{
+	RoccatDevice *device =
+	    roccat_config_window_get_device(ROCCAT_CONFIG_WINDOW(window));
 
 	if (device)
 		leadr_rmp_save(device, rmp, profile_index, error);
@@ -210,7 +296,7 @@ static gboolean save_single(leadrconfigWindow *window, leadrRmp *rmp, guint prof
 	else {
 		set_rmp(window, profile_index, rmp);
 		if (device)
-			apply_colors_talkfx(device, rmp);
+			apply_colors_sequence(device, rmp);
 		return TRUE;
 	}
 }
