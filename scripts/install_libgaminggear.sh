@@ -8,9 +8,11 @@ DEPS_DIR="$SCRIPT_DIR/../deps"
 cd "$DEPS_DIR"
 
 if [ ! -d libgaminggear ]; then
-  git clone https://github.com/neo091977/libgaminggear.git
+  GIT_TERMINAL_PROMPT=0 git clone https://github.com/neo091977/libgaminggear.git
 fi
 cd libgaminggear
+# Update ancient CMake requirement so modern versions can configure the project
+sed -i '1s/.*/cmake_minimum_required(VERSION 3.5)/' CMakeLists.txt
 /bin/mkdir -p build && cd build
 cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
 make -j$(nproc)
