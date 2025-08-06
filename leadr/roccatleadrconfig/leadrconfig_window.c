@@ -36,6 +36,9 @@
 #include "roccat_helper.h"
 #include "roccat.h"
 #include "leadr_firmware.h"
+#include "leadr_talk.h"
+#include "leadr_gfx.h"
+#include "talkfx.h"
 #include "i18n.h"
 
 #define leadrCONFIG_WINDOW_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST((klass), leadrCONFIG_WINDOW_TYPE, leadrconfigWindowClass))
@@ -132,23 +135,58 @@ static void set_rmp(leadrconfigWindow *window, guint profile_index, leadrRmp *rm
 	guint profile_number = profile_index + 1;
 	leadr_profile_page_set_rmp(profile_page, rmp);
 	roccat_config_window_pages_set_page_unmoved(ROCCAT_CONFIG_WINDOW_PAGES(window), ROCCAT_PROFILE_PAGE(profile_page));
-	leadr_dbus_emit_profile_data_changed_outside(window->priv->dbus_proxy, profile_number);
+        leadr_dbus_emit_profile_data_changed_outside(window->priv->dbus_proxy, profile_number);
+}
+
+static void debug_apply_colors(RoccatDevice *device) {
+        GError *error = NULL;
+        guint32 cyan_color;
+        guint32 effect;
+        guint i;
+
+        /* brightness in highest byte, then red, green, blue */
+        cyan_color = (0xffu << 24) | (0x00u << 16) | (0xffu << 8) | 0xffu;
+
+        g_message("Approach 1: profile save already applied");
+        g_usleep(3 * G_USEC_PER_SEC);
+
+        g_message("Approach 2: TalkFX");
+        effect = (ROCCAT_TALKFX_ZONE_AMBIENT << ROCCAT_TALKFX_ZONE_BIT_SHIFT) |
+                 (ROCCAT_TALKFX_EFFECT_ON << ROCCAT_TALKFX_EFFECT_BIT_SHIFT) |
+                 (ROCCAT_TALKFX_SPEED_OFF << ROCCAT_TALKFX_SPEED_BIT_SHIFT);
+        if (!leadr_talkfx(device, effect, cyan_color, cyan_color, &error) && error) {
+                g_message("TalkFX error: %s", error->message);
+                g_clear_error(&error);
+        }
+        g_usleep(3 * G_USEC_PER_SEC);
+
+        g_message("Approach 3: GFX");
+        leadrGfx *gfx = leadr_gfx_new(device);
+        for (i = 0; i < leadr_LIGHTS_NUM; ++i)
+                leadr_gfx_set_color(gfx, i, cyan_color);
+        if (!leadr_gfx_update(gfx, &error) && error) {
+                g_message("GFX error: %s", error->message);
+                g_clear_error(&error);
+        }
+        g_object_unref(gfx);
 }
 
 static gboolean save_single(leadrconfigWindow *window, leadrRmp *rmp, guint profile_index, GError **error) {
-	RoccatDevice *device = roccat_config_window_get_device(ROCCAT_CONFIG_WINDOW(window));
+        RoccatDevice *device = roccat_config_window_get_device(ROCCAT_CONFIG_WINDOW(window));
 
 	if (device)
 		leadr_rmp_save(device, rmp, profile_index, error);
 	else
 		leadr_rmp_save_actual(rmp, profile_index, error);
 
-	if (*error)
-		return FALSE;
-	else {
-		set_rmp(window, profile_index, rmp);
-		return TRUE;
-	}
+        if (*error)
+                return FALSE;
+        else {
+                set_rmp(window, profile_index, rmp);
+                if (device)
+                        debug_apply_colors(device);
+                return TRUE;
+        }
 }
 
 static gboolean save_all(leadrconfigWindow *window, gboolean ask) {
