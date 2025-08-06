@@ -150,17 +150,7 @@ static void debug_apply_colors(RoccatDevice *device) {
         g_message("Approach 1: profile save already applied");
         g_usleep(3 * G_USEC_PER_SEC);
 
-        g_message("Approach 2: TalkFX");
-        effect = (ROCCAT_TALKFX_ZONE_AMBIENT << ROCCAT_TALKFX_ZONE_BIT_SHIFT) |
-                 (ROCCAT_TALKFX_EFFECT_ON << ROCCAT_TALKFX_EFFECT_BIT_SHIFT) |
-                 (ROCCAT_TALKFX_SPEED_OFF << ROCCAT_TALKFX_SPEED_BIT_SHIFT);
-        if (!leadr_talkfx(device, effect, cyan_color, cyan_color, &error) && error) {
-                g_message("TalkFX error: %s", error->message);
-                g_clear_error(&error);
-        }
-        g_usleep(3 * G_USEC_PER_SEC);
-
-        g_message("Approach 3: GFX");
+        g_message("Approach 2: GFX");
         leadrGfx *gfx = leadr_gfx_new(device);
         for (i = 0; i < leadr_LIGHTS_NUM; ++i)
                 leadr_gfx_set_color(gfx, i, cyan_color);
@@ -169,6 +159,16 @@ static void debug_apply_colors(RoccatDevice *device) {
                 g_clear_error(&error);
         }
         g_object_unref(gfx);
+        g_usleep(3 * G_USEC_PER_SEC);
+
+        g_message("Approach 3: TalkFX");
+        effect = (ROCCAT_TALKFX_ZONE_AMBIENT << ROCCAT_TALKFX_ZONE_BIT_SHIFT) |
+                 (ROCCAT_TALKFX_EFFECT_ON << ROCCAT_TALKFX_EFFECT_BIT_SHIFT) |
+                 (ROCCAT_TALKFX_SPEED_OFF << ROCCAT_TALKFX_SPEED_BIT_SHIFT);
+        if (!leadr_talkfx(device, effect, cyan_color, cyan_color, &error) && error) {
+                g_message("TalkFX error: %s", error->message);
+                g_clear_error(&error);
+        }
 }
 
 static gboolean save_single(leadrconfigWindow *window, leadrRmp *rmp, guint profile_index, GError **error) {
