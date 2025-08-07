@@ -312,62 +312,65 @@ static void talkfx_set_led_rgb_cb(leadrDBusServer *server, guint effect, guint a
 }
 
 static void talkfx_restore_led_rgb_cb(leadrDBusServer *server, gpointer user_data) {
-        leadrEventhandler *eventhandler = leadr_EVENTHANDLER(user_data);
-        talkfx_restore_led_rgb(eventhandler);
+	leadrEventhandler *eventhandler = leadr_EVENTHANDLER(user_data);
+	talkfx_restore_led_rgb(eventhandler);
 }
 
 typedef struct {
-        leadrEventhandler *eventhandler;
-        guint index;
-        guint color;
-        guint method;
+	leadrEventhandler *eventhandler;
+	guint index;
+	guint color;
+	guint method;
+	guint timeout_id;
 } LedFixData;
 
 enum {
-        LED_FIX_METHOD_COUNT = 3
+	LED_FIX_METHOD_COUNT = 3
 };
 
 static gboolean cycle_led_fix(gpointer user_data) {
-        LedFixData *data = user_data;
+	LedFixData *data = user_data;
 
-        switch (data->method) {
-        case 0:
-                g_message("LED fix: method 1 (gfx update)");
-                leadr_gfx_set_color(data->eventhandler->priv->gfx, data->index, data->color);
-                (void)leadr_gfx_update(data->eventhandler->priv->gfx, NULL);
-                break;
-        case 1:
-                g_message("LED fix: method 2 (talkfx)");
-                talkfx_set_led_rgb(data->eventhandler, 0, data->color, data->color);
-                break;
-        default:
-                g_message("LED fix: method 3 (restore+talkfx)");
-                talkfx_restore_led_rgb(data->eventhandler);
-                talkfx_set_led_rgb(data->eventhandler, 0, data->color, data->color);
-                break;
-        }
+	switch (data->method) {
+	case 0:
+		g_print("LED fix: method 1 (gfx update)\n");
+		leadr_gfx_set_color(data->eventhandler->priv->gfx, data->index, data->color);
+		(void)leadr_gfx_update(data->eventhandler->priv->gfx, NULL);
+		break;
+	case 1:
+		g_print("LED fix: method 2 (talkfx)\n");
+		talkfx_set_led_rgb(data->eventhandler, 0, data->color, data->color);
+		break;
+	default:
+		g_print("LED fix: method 3 (restore+talkfx)\n");
+		talkfx_restore_led_rgb(data->eventhandler);
+		talkfx_set_led_rgb(data->eventhandler, 0, data->color, data->color);
+		break;
+	}
 
-        data->method = (data->method + 1) % LED_FIX_METHOD_COUNT;
-        return TRUE;
+	data->method = (data->method + 1) % LED_FIX_METHOD_COUNT;
+	return TRUE;
 }
 
 static void start_led_fix_cycle(leadrEventhandler *eventhandler, guint index, guint color) {
-        static LedFixData data;
+	static LedFixData data;
 
-        data.eventhandler = eventhandler;
-        data.index = index;
-        data.color = color;
-        data.method = 0;
+	data.eventhandler = eventhandler;
+	data.index = index;
+	data.color = color;
+	data.method = 0;
+	if (data.timeout_id)
+		g_source_remove(data.timeout_id);
 
-        cycle_led_fix(&data);
-        g_timeout_add_seconds(5, cycle_led_fix, &data);
+	cycle_led_fix(&data);
+	data.timeout_id = g_timeout_add_seconds(5, cycle_led_fix, &data);
 }
 
 static void gfx_set_led_rgb_cb(leadrDBusServer *server, guint index, guint color, gpointer user_data) {
-        leadrEventhandler *eventhandler = leadr_EVENTHANDLER(user_data);
-        if (!should_execute_fx(eventhandler))
-                return;
-        start_led_fix_cycle(eventhandler, index, color);
+	leadrEventhandler *eventhandler = leadr_EVENTHANDLER(user_data);
+	if (!should_execute_fx(eventhandler))
+		g_print("LED fix: Talk FX disabled, attempting cycle anyway\n");
+	start_led_fix_cycle(eventhandler, index, color);
 }
 
 static void gfx_get_led_rgb_cb(leadrDBusServer *server, guint index, guint *color, gpointer user_data) {
