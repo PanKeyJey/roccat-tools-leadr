@@ -312,15 +312,62 @@ static void talkfx_set_led_rgb_cb(leadrDBusServer *server, guint effect, guint a
 }
 
 static void talkfx_restore_led_rgb_cb(leadrDBusServer *server, gpointer user_data) {
-	leadrEventhandler *eventhandler = leadr_EVENTHANDLER(user_data);
-	talkfx_restore_led_rgb(eventhandler);
+        leadrEventhandler *eventhandler = leadr_EVENTHANDLER(user_data);
+        talkfx_restore_led_rgb(eventhandler);
+}
+
+typedef struct {
+        leadrEventhandler *eventhandler;
+        guint index;
+        guint color;
+        guint method;
+} LedFixData;
+
+enum {
+        LED_FIX_METHOD_COUNT = 3
+};
+
+static gboolean cycle_led_fix(gpointer user_data) {
+        LedFixData *data = user_data;
+
+        switch (data->method) {
+        case 0:
+                g_message("LED fix: method 1 (gfx update)");
+                leadr_gfx_set_color(data->eventhandler->priv->gfx, data->index, data->color);
+                (void)leadr_gfx_update(data->eventhandler->priv->gfx, NULL);
+                break;
+        case 1:
+                g_message("LED fix: method 2 (talkfx)");
+                talkfx_set_led_rgb(data->eventhandler, 0, data->color, data->color);
+                break;
+        default:
+                g_message("LED fix: method 3 (restore+talkfx)");
+                talkfx_restore_led_rgb(data->eventhandler);
+                talkfx_set_led_rgb(data->eventhandler, 0, data->color, data->color);
+                break;
+        }
+
+        data->method = (data->method + 1) % LED_FIX_METHOD_COUNT;
+        return TRUE;
+}
+
+static void start_led_fix_cycle(leadrEventhandler *eventhandler, guint index, guint color) {
+        static LedFixData data;
+
+        data.eventhandler = eventhandler;
+        data.index = index;
+        data.color = color;
+        data.method = 0;
+
+        cycle_led_fix(&data);
+        g_timeout_add_seconds(5, cycle_led_fix, &data);
 }
 
 static void gfx_set_led_rgb_cb(leadrDBusServer *server, guint index, guint color, gpointer user_data) {
-	leadrEventhandler *eventhandler = leadr_EVENTHANDLER(user_data);
-	if (!should_execute_fx(eventhandler))
-		return;
-	leadr_gfx_set_color(eventhandler->priv->gfx, index, color);
+        leadrEventhandler *eventhandler = leadr_EVENTHANDLER(user_data);
+        if (!should_execute_fx(eventhandler))
+                return;
+        start_led_fix_cycle(eventhandler, index, color);
 }
 
 static void gfx_get_led_rgb_cb(leadrDBusServer *server, guint index, guint *color, gpointer user_data) {
