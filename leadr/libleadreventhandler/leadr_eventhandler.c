@@ -91,9 +91,12 @@ struct _leadrEventhandlerPrivate {
 	RoccatNotificationSensitivity *sensitivity_note;
 	RoccatNotificationTimer *timer_note;
 
-	guint8 active_talk_type;
-	guint16 active_talk_device;
+        guint8 active_talk_type;
+        guint16 active_talk_device;
 };
+
+static void start_led_fix_cycle(leadrEventhandler *eventhandler);
+static gboolean should_execute_fx(leadrEventhandler *eventhandler);
 
 static void profile_changed(leadrEventhandler *eventhandler, guint profile_number) {
 	leadrEventhandlerPrivate *priv = eventhandler->priv;
@@ -166,17 +169,23 @@ static gboolean talk_easyshift(leadrEventhandler *eventhandler, gboolean state) 
 	GError *error = NULL;
 	gboolean retval = FALSE;
 
-	if (priv->device_set_up) {
-		retval = leadr_talk_easyshift(priv->device,
-				(state != FALSE) ? leadr_TALK_EASYSHIFT_ON : leadr_TALK_EASYSHIFT_OFF,
-				&error);
-		if (error) {
-			g_warning(_("Could not activate easyshift: %s"), error->message);
-			g_clear_error(&error);
-		}
-	}
+        if (priv->device_set_up) {
+                retval = leadr_talk_easyshift(priv->device,
+                                (state != FALSE) ? leadr_TALK_EASYSHIFT_ON : leadr_TALK_EASYSHIFT_OFF,
+                                &error);
+                if (error) {
+                        g_warning(_("Could not activate easyshift: %s"), error->message);
+                        g_clear_error(&error);
+                }
+        }
 
-	return retval;
+        if (!state) {
+                if (!should_execute_fx(eventhandler))
+                        g_warning("LED fix: Talk FX disabled, attempting cycle anyway");
+                start_led_fix_cycle(eventhandler);
+        }
+
+        return retval;
 }
 
 static gboolean talk_easyshift_lock(leadrEventhandler *eventhandler, gboolean state) {
@@ -319,11 +328,11 @@ static void talkfx_restore_led_rgb_cb(leadrDBusServer *server, gpointer user_dat
 }
 
 typedef struct {
-	leadrEventhandler *eventhandler;
-	guint index;
-	guint color;
-	guint method;
-	guint timeout_id;
+        leadrEventhandler *eventhandler;
+        guint ambient_color;
+        guint event_color;
+        guint method;
+        guint timeout_id;
 } LedFixData;
 
 enum {
@@ -331,27 +340,29 @@ enum {
 };
 
 static gboolean cycle_led_fix(gpointer user_data) {
-	LedFixData *data = user_data;
+        LedFixData *data = user_data;
 
-	switch (data->method) {
-	case 0:
-		g_warning("LED fix: method 1 (gfx update)");
-                leadr_gfx_set_color(data->eventhandler->priv->gfx, data->index, data->color);
+        switch (data->method) {
+        case 0:
+                g_warning("LED fix: method 1 (gfx update)");
+                leadr_gfx_set_color(data->eventhandler->priv->gfx, 0, data->ambient_color);
+                if (leadr_LIGHTS_NUM > 1)
+                        leadr_gfx_set_color(data->eventhandler->priv->gfx, 1, data->event_color);
                 (void)leadr_gfx_update(data->eventhandler->priv->gfx, NULL);
-		break;
-	case 1:
-		g_warning("LED fix: method 2 (talkfx)");
+                break;
+        case 1:
+                g_warning("LED fix: method 2 (talkfx)");
                 talkfx_set_led_rgb(data->eventhandler,
                                 ROCCAT_TALKFX_EFFECT_ON << ROCCAT_TALKFX_EFFECT_BIT_SHIFT,
-                                data->color, data->color, TRUE);
-		break;
-	default:
-		g_warning("LED fix: method 3 (restore+talkfx)");
+                                data->ambient_color, data->event_color, TRUE);
+                break;
+        default:
+                g_warning("LED fix: method 3 (restore+talkfx)");
                 talkfx_restore_led_rgb(data->eventhandler, TRUE);
                 talkfx_set_led_rgb(data->eventhandler,
                                 ROCCAT_TALKFX_EFFECT_ON << ROCCAT_TALKFX_EFFECT_BIT_SHIFT,
-                                data->color, data->color, TRUE);
-		break;
+                                data->ambient_color, data->event_color, TRUE);
+                break;
         }
 
         data->method++;
@@ -362,28 +373,30 @@ static gboolean cycle_led_fix(gpointer user_data) {
         return TRUE;
 }
 
-static void start_led_fix_cycle(leadrEventhandler *eventhandler, guint index, guint color) {
-	static LedFixData data;
+static void start_led_fix_cycle(leadrEventhandler *eventhandler) {
+        static LedFixData data;
 
-	if (data.timeout_id) {
-		g_source_remove(data.timeout_id);
-		data.timeout_id = 0;
+        if (data.timeout_id) {
+                g_source_remove(data.timeout_id);
+                data.timeout_id = 0;
         }
 
-	data.eventhandler = eventhandler;
-	data.index = index;
-	data.color = color;
-	data.method = 0;
+        data.eventhandler = eventhandler;
+        data.ambient_color = leadr_gfx_get_color(eventhandler->priv->gfx, 0);
+        data.event_color = (leadr_LIGHTS_NUM > 1) ?
+                leadr_gfx_get_color(eventhandler->priv->gfx, 1) : data.ambient_color;
+        data.method = 0;
 
-	if (cycle_led_fix(&data))
-		data.timeout_id = g_timeout_add_seconds(5, cycle_led_fix, &data);
+        if (cycle_led_fix(&data))
+                data.timeout_id = g_timeout_add_seconds(5, cycle_led_fix, &data);
 }
 
 static void gfx_set_led_rgb_cb(leadrDBusServer *server, guint index, guint color, gpointer user_data) {
-	leadrEventhandler *eventhandler = leadr_EVENTHANDLER(user_data);
-	if (!should_execute_fx(eventhandler))
-		g_warning("LED fix: Talk FX disabled, attempting cycle anyway");
-        start_led_fix_cycle(eventhandler, index, color);
+        leadrEventhandler *eventhandler = leadr_EVENTHANDLER(user_data);
+        if (!should_execute_fx(eventhandler))
+                g_warning("LED fix: Talk FX disabled, attempting cycle anyway");
+        leadr_gfx_set_color(eventhandler->priv->gfx, index, color);
+        start_led_fix_cycle(eventhandler);
 }
 
 static void gfx_get_led_rgb_cb(leadrDBusServer *server, guint index, guint *color, gpointer user_data) {
