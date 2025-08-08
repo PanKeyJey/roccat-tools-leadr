@@ -36,6 +36,8 @@
 #include "roccat_helper.h"
 #include "roccat.h"
 #include "leadr_firmware.h"
+#include "leadr_talk.h"
+#include "talkfx.h"
 #include "i18n.h"
 
 #define leadrCONFIG_WINDOW_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST((klass), leadrCONFIG_WINDOW_TYPE, leadrconfigWindowClass))
@@ -135,6 +137,38 @@ static void set_rmp(leadrconfigWindow *window, guint profile_index, leadrRmp *rm
 	leadr_dbus_emit_profile_data_changed_outside(window->priv->dbus_proxy, profile_number);
 }
 
+static guint32 rmp_color_to_talkfx(leadrRmp *rmp, guint index) {
+	leadrRmpLightInfo *info;
+	guint32 color;
+
+	info = leadr_rmp_get_custom_light_info(rmp, index);
+	color = (0xffu << 24) | ((guint32)info->red << 16) |
+		((guint32)info->green << 8) | (guint32)info->blue;
+	g_free(info);
+
+	return color;
+}
+
+static void debug_apply_colors(RoccatDevice *device, leadrRmp *rmp) {
+	GError *error = NULL;
+	guint32 ambient_color, event_color;
+	guint32 effect;
+
+	ambient_color = rmp_color_to_talkfx(rmp, 0);
+	event_color = (leadr_LIGHTS_NUM > 1) ?
+		rmp_color_to_talkfx(rmp, 1) : ambient_color;
+
+	g_message("TalkFX: applying user colors");
+
+	effect = (ROCCAT_TALKFX_ZONE_AMBIENT << ROCCAT_TALKFX_ZONE_BIT_SHIFT) |
+		(ROCCAT_TALKFX_EFFECT_ON << ROCCAT_TALKFX_EFFECT_BIT_SHIFT) |
+		(ROCCAT_TALKFX_SPEED_OFF << ROCCAT_TALKFX_SPEED_BIT_SHIFT);
+	if (!leadr_talkfx(device, effect, ambient_color, event_color, &error) && error) {
+		g_message("TalkFX error: %s", error->message);
+		g_clear_error(&error);
+	}
+}
+
 static gboolean save_single(leadrconfigWindow *window, leadrRmp *rmp, guint profile_index, GError **error) {
 	RoccatDevice *device = roccat_config_window_get_device(ROCCAT_CONFIG_WINDOW(window));
 
@@ -147,6 +181,8 @@ static gboolean save_single(leadrconfigWindow *window, leadrRmp *rmp, guint prof
 		return FALSE;
 	else {
 		set_rmp(window, profile_index, rmp);
+		if (device)
+		debug_apply_colors(device, rmp);
 		return TRUE;
 	}
 }
@@ -560,10 +596,10 @@ static GObject *constructor(GType gtype, guint n_properties, GObjectConstructPar
 	       /* keep this order */
 	       priv->dbus_proxy = leadr_dbus_proxy_new();
 	       if (priv->dbus_proxy) {
-		               dbus_g_proxy_connect_signal(priv->dbus_proxy, "ProfileChanged",
+		dbus_g_proxy_connect_signal(priv->dbus_proxy, "ProfileChanged",
 			                               G_CALLBACK(actual_profile_changed_from_device_cb), window, NULL);
 	       } else {
-		               g_debug("DBus proxy unavailable; device changes will not auto-sync");
+		g_debug("DBus proxy unavailable; device changes will not auto-sync");
 	       }
 
 	roccat_config_window_set_device_scanner(roccat_window, ROCCAT_DEVICE_SCANNER_INTERFACE(leadr_device_scanner_new()));
